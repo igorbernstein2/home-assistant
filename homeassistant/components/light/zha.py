@@ -89,7 +89,7 @@ class Light(zha.Entity, light.Light):
         if light.ATTR_COLOR_TEMP in kwargs:
             temperature = kwargs[light.ATTR_COLOR_TEMP]
             await self._endpoint.light_color.move_to_color_temp(
-                temperature, duration)
+                temperature, duration, expect_reply=False)
             self._color_temp = temperature
 
         if light.ATTR_XY_COLOR in kwargs:
@@ -104,6 +104,7 @@ class Light(zha.Entity, light.Light):
                 int(self._xy_color[0] * 65535),
                 int(self._xy_color[1] * 65535),
                 duration,
+                expect_reply=False
             )
 
         if self._brightness is not None:
@@ -113,19 +114,20 @@ class Light(zha.Entity, light.Light):
             # Move to level with on/off:
             await self._endpoint.level.move_to_level_with_on_off(
                 brightness,
-                duration
+                duration,
+                expect_reply=False
             )
             self._state = 1
             self.async_schedule_update_ha_state()
             return
 
-        await self._endpoint.on_off.on()
+        await self._endpoint.on_off.on(expect_reply=False)
         self._state = 1
         self.async_schedule_update_ha_state()
 
     async def async_turn_off(self, **kwargs):
         """Turn the entity off."""
-        await self._endpoint.on_off.off()
+        await self._endpoint.on_off.off(expect_reply=False)
         self._state = 0
         self.async_schedule_update_ha_state()
 
